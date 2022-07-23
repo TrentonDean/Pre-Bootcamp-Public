@@ -1,0 +1,218 @@
+<html>
+    <head>
+        <title> NinjaMan!! </title>
+
+        <style type = "text/css"> 
+            *{
+                margin: 0px;                                        /*This gets rid of the vertical spaces between each row*/
+                padding: 0px;
+            }                                                      
+            .row{
+                line-height: 0;                                     /*This gets rid of the horizontal spaces between each row*/
+            }
+            .wall{                                                  /* This is the code for the blue, unpassable blocks. height and width are set with their respective commands, and the display inline-block command causes the 'blocks' to form a grid shape*/
+                background-color: blue;
+                height: 40px;
+                width: 40px;
+                display: inline-block;
+            }
+            .sushi{                                                 /* This is the code for the sushi. The background-image command calls on an image to be placed in the black. background-size contain sets the size of the image to meet the height and width values*/
+                background-color: black;
+                height: 40px;
+                width: 40px;
+                display: inline-block;
+                background-image: url('img/sushi.png');
+                background-size: contain;
+            }
+            .onigiri{                                               /* This is the code for the onigiri */
+                background-color: black;
+                height: 40px;
+                width: 40px;
+                display: inline-block;
+                background-image: url('img/onigiri.png');
+                background-size: contain;
+            }
+            .blank{                                                 /* This is the code for the blank, passable blocks */
+                background-color: black;
+                height: 40px;
+                width: 40px;
+                display: inline-block;
+            }
+            #ninjaman{                                              /* This is the code for NinjaMan himself. The position absolute command places him on the page relative to the page itself in this case, 40px from the left, and 40px from the top */
+                background-color: black;
+                height: 40px;
+                width: 40px;
+                display: inline-block;
+                background-image: url('img/ninja.gif');
+                background-size: contain;
+                position: absolute;
+                left: 40px;
+                top: 40px;
+            }
+            #enemy{                                                 /* This is the code for an enemy, in this case, pulling the image of "Bluey" */
+                background-color: black;
+                height: 40px;
+                width: 40px;
+                display: inline-block;
+                background-image: url('img/bluey.gif');
+                background-size: contain;
+                position: absolute;
+                left: 40px;
+                top: 40px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="world"></div>
+            <div id="ninjaman"></div>
+            <div id="enemy"></div>
+
+            <h1>NinjaMan has <span id="points"></span> points.</h1> <!-- The span id command pulls the variable points and prints it to the page -->
+            <h2>NinjaMan has <span id="lives"></span> lives.</h2>
+
+    </body>
+    <script type="text/javascript">
+
+        function rand(max,min){                                     /* function for calculating a random number so I don't retype it over and over again */
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+
+        var world = [                                               /* array of arrays, with random numbers from 0 to 3 generated, representing walls, blanks, sushi, and onigiri in a grid */
+            [1,1,1,1,1],
+            [1,0,rand(0,4),rand(0,4),1],
+            [1,rand(0,4),rand(0,4),rand(0,4),1],
+            [1,rand(0,4),rand(0,4),rand(0,4),1],
+            [1,rand(0,4),rand(0,4),rand(0,4),1],
+            [1,rand(0,4),rand(0,4),rand(0,4),1],
+            [1,rand(0,4),rand(0,4),rand(0,4),1],
+            [1,rand(0,4),rand(0,4),rand(0,4),1],
+            [1,rand(0,4),rand(0,4),rand(0,4),1],
+            [1,rand(0,4),rand(0,4),rand(0,4),1],
+            [1,rand(0,4),rand(0,4),0,1],
+            [1,1,1,1,1]
+        ]
+        var worldDict = {                                           /* allows the drawWorld function to understand the values to create a grid */
+            0: 'blank',
+            1: 'wall',
+            2: 'sushi',
+            3: 'onigiri'
+        }
+        var points = 0;
+        document.getElementById('points').innerHTML = points;
+
+        var lives = 3;
+        document.getElementById('lives').innerHTML = lives;
+
+     function drawWorld(){                                          /* function that creates the blocks of the world by taking the values of each member of the array and translates it to the page */
+        var output = "";
+        
+        for(var row = 0;row < world.length;row++){
+            output += "<div class = 'row'>";
+            for(var x = 0;x < world[row].length; x++){
+                output += "<div class = '" + worldDict[world[row][x]] + "'></div>";
+            }
+            output += "</div>"
+        }
+
+        document.getElementById('world').innerHTML =                /* this command sets the value of world to be the output, which in this case is what sends the images to the page */
+            output;
+    }
+    drawWorld();
+
+    var ninjaman = {                                                /* this sets NinjaMan on the 1,1 coordinates relative to the world array */
+        x: 1,
+        y: 1
+    }
+
+    function drawNinjaman(){                                        /* this tells the screen where to put Ninjaman, since each block is 40x40px */
+        document.getElementById('ninjaman').style.top = ninjaman.y * 40 +
+        'px';
+        document.getElementById('ninjaman').style.left = ninjaman.x * 40 +
+        'px';
+    }
+    drawNinjaman();
+
+    var enemy = {
+        x: 3,
+        y: 10
+    }
+
+    function drawEnemy(){
+        document.getElementById('enemy').style.top = enemy.y * 40 +
+        'px';
+        document.getElementById('enemy').style.left = enemy.x * 40 +
+        'px';
+    }
+    drawEnemy();
+
+    function moveEnemy(){                                                   // This randomly moves the enemy around the map unless blocked by an impassable wall
+        var move = rand(0,4);
+        if(move ===0 && (world[enemy.y][enemy.x-1] !==1)){                  //0 = left
+          enemy.x--;
+        } 
+        else if(move ===1 && (world[enemy.y][enemy.x+1] !==1)){             //1 = right
+          enemy.x++;
+        }
+        else if(move ===2 && (world[enemy.y-1][enemy.x] !==1)){             //2 = up
+        enemy.y--;
+        }
+        else if(move ===3 && (world[enemy.y+1][enemy.x] !==1)){             //3 = down
+        enemy.y++;
+        }
+    }
+
+    document.onkeydown = function(e){                                       // This function activates when e(event) is triggered, this case when an arrow key is pressed, moving NinjaMan on the screen
+        if(e.keyCode == 37){                                                // LEFT
+            if(world[ninjaman.y][ninjaman.x - 1] != 1){
+                ninjaman.x--;
+            }
+        }
+        if(e.keyCode == 38){                                                // UP
+            if(world[ninjaman.y - 1][ninjaman.x] != 1){
+                ninjaman.y--;
+            }
+        }
+        if(e.keyCode == 39){                                                // RIGHT
+            if(world[ninjaman.y][ninjaman.x + 1] != 1){
+                ninjaman.x++;
+            }
+        }
+        if(e.keyCode == 40){                                                // DOWN
+            if(world[ninjaman.y + 1][ninjaman.x] != 1){
+                ninjaman.y++;
+            }
+        }
+        
+        if(world[ninjaman.y][ninjaman.x] == 2){                             // These 2 if statements check and see if NinjaMan goes into the same space as sushi(10 points) or onigiri(5 points) and adds it to the points total and takes the sushi or onigiri off the screen and sets that space to a blank
+            points += 10;
+            world[ninjaman.y][ninjaman.x] = 0;
+        }
+        if(world[ninjaman.y][ninjaman.x] == 3){
+            points += 5;
+            world[ninjaman.y][ninjaman.x] = 0;
+        }
+
+        if((world[ninjaman.y]) == (world[enemy.y]) && (world[ninjaman.x]) == (world[enemy.x])){// This if statement checks to see if Ninjaman goes into the same space as the enemy, and if so the number of lives he has is decreased by 1
+            lives--;
+        }
+        if(lives == 0){                                                     // This checks to see if the lives variable reaches 0, and if so, the screen is replaced by the game over message
+            document.write("Game Over! NinjaMan had "),document.write(points),document.write(" points!");
+        }
+    document.getElementById('points').innerHTML = points;
+    document.getElementById('lives').innerHTML = lives;
+
+    drawNinjaman();
+    drawWorld();
+
+    function gameLoop(){                                                    // This loops the moveEnemy function to cause him to move with each movement NinjaMan makes
+        drawNinjaman();
+        drawEnemy();
+        moveEnemy();
+        drawEnemy();
+    }
+    gameLoop();
+
+    }
+
+    </script>
+</html>
